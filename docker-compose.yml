@@ -1,0 +1,41 @@
+version: '3.1'
+services:
+  homeautomation-prometheus:
+    image: prom/prometheus:v2.15.2
+    volumes:
+      - ./prometheus/:/etc/prometheus/
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    ports:
+      - 9090:9090
+    # On MacOS, remove next line and replace localhost by host.docker.internal in prometheus/prometheus.yml and
+    # grafana/provisioning/datasources/datasource.yml
+
+  homeautomation-grafana:
+    image: grafana/grafana:6.6.0
+    volumes:
+      - ~/IdeaProjects/HomeAutomation/srsc/main/docker/grafana/provisioning/:/etc/grafana/provisioning/
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel
+    ports:
+      - 3000:3000
+
+  homeautomation-mysql:
+    image: mysql:8.0.19
+    # volumes:
+    #     - ~/volumes/jhipster/HomeAutomation/mysql/:/var/lib/mysql/
+    environment:
+      - MYSQL_USER=root
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+      - MYSQL_DATABASE=homeautomation
+    ports:
+      - 3306:3306
+    command: mysqld --lower_case_table_names=1 --skip-ssl --character_set_server=utf8mb4 --explicit_defaults_for_timestamp
+
+  homeautomation-redis:
+    image: redis:5.0.7
+    ports:
+      - '6379:6379'
+
